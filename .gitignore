@@ -23,6 +23,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local sqlite data (created by scripts/ensure-data-dir.mjs)
+/db
+
 # vercel
 .vercel
 

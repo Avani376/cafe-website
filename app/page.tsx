@@ -1,31 +1,58 @@
-import Link from "next/link";
+import { getCopy, getMenu, getSite, menuImageExists } from "@/lib/content";
+import { getPaymentProvider } from "@/lib/payments/razorpay";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+import { MenuSection } from "@/components/Menu";
+import { About } from "@/components/About";
+import { Visit, Footer } from "@/components/Visit";
+import { CartDrawer } from "@/components/CartDrawer";
+import { Reveal } from "@/components/Reveal";
 
 /*
- * Phase 0 placeholder. The real page (header, hero, menu, about, visit,
- * footer) is built in Phase 1 and reads all copy from /content. Keep this
- * minimal and plainly written - no invented cafe copy here.
+ * Single-page composition (PRD Section 3): hero, menu, about + links,
+ * visit, footer, cart drawer. All content comes from /content (working
+ * rule 4); the payment provider is checked server-side so the client knows
+ * whether online checkout is available.
+ *
+ * The feedback form arrives in Phase 5; a plainly written placeholder keeps
+ * the header anchor working until then.
  */
 export default function Home() {
+  const menu = getMenu();
+  const site = getSite();
+  const copy = getCopy();
+  const paymentConfigured = getPaymentProvider().isConfigured();
+
+  const images: Record<string, boolean> = {};
+  for (const item of menu.items) images[item.id] = menuImageExists(item);
+
   return (
-    <main className="mx-auto max-w-2xl px-6 py-24">
-      <h1 className="font-display text-4xl text-foreground">Cafe site - foundation build</h1>
-      <p className="mt-4 text-muted">
-        Phase 0 is scaffolding only: design tokens, fonts and the style test page. The real layout,
-        menu and copy arrive in later phases from /content.
-      </p>
-      <p className="mt-6">
-        <Link
-          href="/style-test"
-          className="rounded-card bg-accent px-4 py-2 text-sm text-surface transition-colors hover:opacity-90"
-        >
-          Open the style test page
-        </Link>
-      </p>
-      <p className="mt-3">
-        <a href="/style-test" className="text-sm text-muted underline underline-offset-2">
-          (same page, plain link for keyboard testing)
-        </a>
-      </p>
-    </main>
+    <>
+      <Header site={site} />
+      <main>
+        <Hero
+          headline={copy["hero.headline"] ?? site.name}
+          cafeName={site.name}
+          tagline={site.tagline}
+        />
+        <MenuSection menu={menu} images={images} />
+        <About site={site} story={copy["about.story"] ?? ""} />
+        <Visit site={site} />
+
+        <section id="feedback" className="scroll-mt-24 border-t border-muted/10">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <Reveal>
+              <h2 className="font-display text-4xl text-foreground">Feedback</h2>
+              <p className="mt-4 max-w-prose text-muted">
+                The feedback form arrives in a later phase of this build. Until then, tell us in
+                person or through the links above.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+      </main>
+      <Footer site={site} />
+      <CartDrawer menu={menu} site={site} copy={copy} paymentConfigured={paymentConfigured} />
+    </>
   );
 }

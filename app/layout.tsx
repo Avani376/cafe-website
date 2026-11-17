@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Public_Sans } from "next/font/google";
+import { getSite } from "@/lib/content";
 import "./globals.css";
 
 /*
@@ -21,13 +22,15 @@ const body = Public_Sans({
   display: "swap",
 });
 
-// TODO(content): the cafe name and description come from the owner
+// TODO(content): the cafe name and description come from /content
 // (PRD Section 14). Placeholder text here is not the final brand voice.
-export const metadata: Metadata = {
-  title: "Cafe - foundation build",
-  description:
-    "Foundation build (Phase 0). Real copy, menu, hours and photos arrive from /content in later phases.",
-};
+export function generateMetadata(): Metadata {
+  const site = getSite();
+  return {
+    title: `${site.name} - ${site.tagline}`,
+    description: "Cafe menu, online orders and pickup. Built phase by phase.",
+  };
+}
 
 export default function RootLayout({
   children,

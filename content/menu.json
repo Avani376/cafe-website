@@ -1,0 +1,133 @@
+{
+  "_note": "PLACEHOLDER menu - prices, names and availability must be confirmed by the owner before launch (PRD Section 14.2). Prices are INR integers in rupees, shown with Indian number formatting. Options carry stable ids so the client sends ids, never prices.",
+  "categories": ["coffee", "food", "bakery"],
+  "items": [
+    {
+      "id": "flat-white",
+      "name": "Flat White",
+      "category": "coffee",
+      "description": "Double ristretto under steamed milk, small and strong.",
+      "price": 180,
+      "image": "/menu/flat-white.jpg",
+      "diet": ["veg"],
+      "tags": ["bestseller"],
+      "available": true,
+      "pairsWith": ["butter-croissant"],
+      "options": [
+        { "id": "oat-milk", "label": "Oat milk", "price": 40 },
+        { "id": "extra-shot", "label": "Extra shot", "price": 50 }
+      ]
+    },
+    {
+      "id": "filter-coffee",
+      "name": "South Indian Filter Coffee",
+      "category": "coffee",
+      "description": "Slow drip decoction, frothed hot milk, served in a tumbler.",
+      "price": 90,
+      "image": "/menu/filter-coffee.jpg",
+      "diet": ["veg"],
+      "tags": [],
+      "available": true,
+      "pairsWith": ["masala-toast"],
+      "options": [{ "id": "extra-strong", "label": "Extra strong", "price": 20 }]
+    },
+    {
+      "id": "cappuccino",
+      "name": "Cappuccino",
+      "category": "coffee",
+      "description": "Balanced shot, steamed milk, thick foam.",
+      "price": 160,
+      "image": "/menu/cappuccino.jpg",
+      "diet": ["veg"],
+      "tags": [],
+      "available": true,
+      "options": [{ "id": "oat-milk", "label": "Oat milk", "price": 40 }]
+    },
+    {
+      "id": "cold-brew",
+      "name": "Cold Brew Tonic",
+      "category": "coffee",
+      "description": "18-hour cold brew over ice with tonic and a slice of lime.",
+      "price": 220,
+      "image": "/menu/cold-brew.jpg",
+      "diet": ["veg"],
+      "tags": ["new"],
+      "available": true,
+      "options": []
+    },
+    {
+      "id": "espresso",
+      "name": "Espresso",
+      "category": "coffee",
+      "description": "Single origin shot, pulled to order.",
+      "price": 120,
+      "image": "/menu/espresso.jpg",
+      "diet": ["veg"],
+      "tags": [],
+      "available": true,
+      "options": [{ "id": "extra-shot", "label": "Extra shot", "price": 40 }]
+    },
+    {
+      "id": "masala-toast",
+      "name": "Masala Cheese Toast",
+      "category": "food",
+      "description": "Sourdough, spiced chutney, melted cheddar, pressed crisp.",
+      "price": 140,
+      "image": "/menu/masala-toast.jpg",
+      "diet": ["veg"],
+      "tags": ["bestseller"],
+      "available": true,
+      "pairsWith": ["filter-coffee"],
+      "options": []
+    },
+    {
+      "id": "egg-bhurji-toast",
+      "name": "Bhurji on Toast",
+      "category": "food",
+      "description": "Soft scrambled eggs with onion, chilli and coriander on sourdough.",
+      "price": 180,
+      "image": "/menu/egg-bhurji-toast.jpg",
+      "diet": ["non-veg"],
+      "tags": [],
+      "available": true,
+      "options": [{ "id": "extra-egg", "label": "Extra egg", "price": 40 }]
+    },
+    {
+      "id": "mushroom-melt",
+      "name": "Mushroom Melt",
+      "category": "food",
+      "description": "Garlic butter mushrooms, mozzarella, thyme on toasted bun.",
+      "price": 210,
+      "image": "/menu/mushroom-melt.jpg",
+      "diet": ["veg"],
+      "tags": ["new"],
+      "available": true,
+      "options": []
+    },
+    {
+      "id": "butter-croissant",
+      "name": "Butter Croissant",
+      "category": "bakery",
+      "description": "Laminated over three days, baked every morning.",
+      "price": 120,
+      "image": "/menu/butter-croissant.jpg",
+      "diet": ["veg"],
+      "tags": ["bestseller"],
+      "available": true,
+      "pairsWith": ["flat-white"],
+      "options": []
+    },
+    {
+      "id": "banana-bread",
+      "name": "Banana Bread Slice",
+      "category": "bakery",
+      "description": "Toasted, with salted butter.",
+      "price": 100,
+      "image": "/menu/banana-bread.jpg",
+      "diet": ["veg"],
+      "tags": [],
+      "available": false,
+      "options": []
+    }
+  ]
+}

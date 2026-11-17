@@ -1,0 +1,31 @@
+{
+  "_note": "PLACEHOLDER site data - every value here must be replaced with the owner's real details (PRD Section 14.3, 14.5). Hours are Asia/Kolkata. Link URLs are placeholders (#) until the owner supplies real handles.",
+  "name": "The Cafe",
+  "tagline": "Neighbourhood cafe",
+  "address": "Shop 12, Sample Street, Sample Locality, Bengaluru 560001",
+  "phone": "+91-00000-00000",
+  "mapUrl": "https://maps.google.com",
+  "timezone": "Asia/Kolkata",
+  "hours": {
+    "mon": [["08:00", "22:00"]],
+    "tue": [["08:00", "22:00"]],
+    "wed": [["08:00", "22:00"]],
+    "thu": [["08:00", "22:00"]],
+    "fri": [["08:00", "22:00"]],
+    "sat": [["09:00", "23:00"]],
+    "sun": [["09:00", "23:00"]]
+  },
+  "links": {
+    "cafe": [
+      { "type": "instagram", "label": "Instagram", "url": "#" },
+      { "type": "maps", "label": "Google Maps", "url": "#" },
+      { "type": "whatsapp", "label": "WhatsApp", "url": "#" },
+      { "type": "facebook", "label": "Facebook", "url": "#" }
+    ],
+    "owner": [
+      { "type": "instagram", "label": "Instagram", "url": "#" },
+      { "type": "linkedin", "label": "LinkedIn", "url": "#" },
+      { "type": "x", "label": "X", "url": "#" }
+    ]
+  }
+}
