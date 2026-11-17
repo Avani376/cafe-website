@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens - the only colors and fonts in the project live here.
+ *
+ * PROVISIONAL: design/theme.png does not exist in the repo yet, so every
+ * value below is a neutral placeholder, not the cafe's brand. Each is marked
+ * TODO(theme) and must be replaced once the owner provides the theme image
+ * or a palette (see the Questions section in design/tokens.md).
+ *
+ * Components consume these tokens only through Tailwind utilities mapped in
+ * the @theme inline block below. No hard-coded hex values in components.
+ */
+:root {
+  --background: #faf9f7; /* TODO(theme) provisional warm paper neutral */
+  --surface: #ffffff; /* TODO(theme) provisional card and sheet surface */
+  --foreground: #1c1917; /* TODO(theme) provisional near-black text */
+  --muted: #78716c; /* TODO(theme) provisional secondary text, hairlines */
+  --accent: #1c1917; /* TODO(theme) provisional neutral accent, primary actions */
+  --danger: #b91c1c; /* TODO(theme) provisional accessible error red */
+  --success: #15803d; /* TODO(theme) provisional accessible success green */
+  --radius: 12px; /* TODO(theme) provisional corner radius */
+}
+
+/*
+ * Tailwind theme mapping: each token above becomes a utility class
+ * (bg-background, text-muted, font-display, rounded-card, ...).
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --radius-card: var(--radius);
+
+  /* next/font variables from app/layout.tsx, with plain fallback stacks.
+     TODO(theme): pairing is provisional until the theme image is reviewed. */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-public-sans), system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

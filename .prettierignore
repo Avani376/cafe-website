@@ -1,0 +1,7 @@
+package-lock.json
+node_modules
+.next
+out
+public
+.mimosa
+docs/PRD.md
