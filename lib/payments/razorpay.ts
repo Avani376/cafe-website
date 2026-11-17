@@ -1,5 +1,6 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { PaymentProviderError, type PaymentProvider, type RemoteOrderResult } from "./index";
+import { MockProvider, safeEqualHex } from "./mock";
 
 /*
  * Razorpay implementation of the PaymentProvider interface (test mode during
@@ -106,18 +107,13 @@ export class RazorpayProvider implements PaymentProvider {
   }
 }
 
-function safeEqualHex(expectedHex: string, provided: string): boolean {
-  const a = Buffer.from(expectedHex, "utf8");
-  const b = Buffer.from(provided, "utf8");
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
-
 let provider: PaymentProvider | null = null;
 
-/** App-wide provider. Swap the class here to change payment providers. */
+/** App-wide provider. PAYMENT_MOCK=true selects the sandbox provider. */
 export function getPaymentProvider(): PaymentProvider {
-  if (!provider) provider = new RazorpayProvider();
+  if (!provider) {
+    provider = process.env.PAYMENT_MOCK === "true" ? new MockProvider() : new RazorpayProvider();
+  }
   return provider;
 }
 

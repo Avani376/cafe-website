@@ -48,6 +48,26 @@ notified by email immediately.
 `.env.example`. On Vercel, set them in Project Settings -> Environment
 Variables for each environment (preview + production).
 
+## Sandbox payments (no keys required)
+
+Set `PAYMENT_MOCK=true` to route through `MockProvider`
+(`lib/payments/mock.ts`) behind the same `PaymentProvider` interface:
+
+- `POST /api/orders` creates a pending order with a `mock_order_*` id.
+- The cart opens a clearly-labelled **Sandbox payment** sheet with two
+  buttons - "Simulate successful payment" and "Simulate failed payment" -
+  so both the success and failure screens are testable.
+- Success calls `POST /api/payments/mock-capture`, which builds the handler
+  payload server-side, verifies it with the provider's own HMAC check, and
+  marks the order paid through the same `markOrderPaid` pipeline
+  (idempotency rules fully apply).
+- The route returns 403 when the app is not running the sandbox provider,
+  and the UI never shows the sandbox sheet in production mode.
+
+Real Razorpay keys take over automatically when set (env-based selection in
+`getPaymentProvider`). The sandbox secret lives in `PAYMENT_MOCK_SECRET`
+(any dev string; not a credential).
+
 ## Going live checklist
 
 1. Razorpay dashboard -> create/live-switch account; complete KYC.

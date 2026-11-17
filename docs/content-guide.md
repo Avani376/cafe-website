@@ -10,6 +10,15 @@ them (working rule 4).
 > chosen by the developer at the owner's request (theme v2 "Ember After
 > Dark") - change both in one place if the owner picks a different name.
 
+## Photos
+
+Menu photos in `/public/menu/` are free-license stock (Unsplash) chosen to
+match each dish, visually verified. They are stand-ins for the owner's real
+photos - replace the file, keep the same filename, and the menu updates.
+As of the current build: masala-toast and banana-bread have no honest stock
+match, so they render the theme-colored placeholder (PRD Section 5.9) until
+the owner supplies photos. Hero/about photos live in `/public/gallery/`.
+
 ## menu.json
 
 - `categories`: tab order.

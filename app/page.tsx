@@ -21,7 +21,9 @@ export default function Home() {
   const menu = getMenu();
   const site = getSite();
   const copy = getCopy();
-  const paymentConfigured = getPaymentProvider().isConfigured();
+  const provider = getPaymentProvider();
+  const paymentMode: "razorpay" | "mock" | "unconfigured" =
+    provider.name === "mock" ? "mock" : provider.isConfigured() ? "razorpay" : "unconfigured";
 
   const images: Record<string, boolean> = {};
   for (const item of menu.items) images[item.id] = menuImageExists(item);
@@ -52,7 +54,7 @@ export default function Home() {
         </section>
       </main>
       <Footer site={site} />
-      <CartDrawer menu={menu} site={site} copy={copy} paymentConfigured={paymentConfigured} />
+      <CartDrawer menu={menu} site={site} copy={copy} paymentMode={paymentMode} />
     </>
   );
 }

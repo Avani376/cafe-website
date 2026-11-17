@@ -1,11 +1,13 @@
+import Image from "next/image";
 import { Reveal } from "./Reveal";
 import { LinksPanel } from "./LinksPanel";
 import type { Site } from "@/lib/content";
 
 /*
- * About section (PRD Section 6.6): short story from copy.md, two photo
- * placeholders (flat, theme-colored - real photos come from the owner), and
- * the links panel. Asymmetric 7/5 layout, body text left-aligned.
+ * About section (PRD Sections 5.9, 6.6): short story from copy.md, two real
+ * photos (stock stand-ins until the owner supplies the cafe's own - PRD
+ * Section 5.9), and the links panel. Asymmetric 7/5 layout, body text
+ * left-aligned.
  */
 export function About({ site, story }: { site: Site; story: string }) {
   return (
@@ -23,12 +25,24 @@ export function About({ site, story }: { site: Site; story: string }) {
         </Reveal>
 
         <Reveal delay={0.04} className="flex flex-col gap-4 md:col-span-5">
-          <div className="flex aspect-4/3 items-center justify-center rounded-card border border-muted/20 bg-surface">
-            {/* TODO(content): real about photos from the owner. */}
-            <span className="text-xs text-muted/70">Photo pending</span>
+          <div className="relative aspect-4/3 overflow-hidden rounded-card border border-muted/20">
+            {/* TODO(content): replace stock stand-ins with the cafe's own photos. */}
+            <Image
+              src="/gallery/about-1.jpg"
+              alt="French press and cups on a table by the cafe windows"
+              fill
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className="object-cover"
+            />
           </div>
-          <div className="ml-auto flex aspect-3/2 w-3/4 items-center justify-center rounded-card border border-muted/20 bg-surface">
-            <span className="text-xs text-muted/70">Photo pending</span>
+          <div className="relative ml-auto aspect-3/2 w-3/4 overflow-hidden rounded-card border border-muted/20">
+            <Image
+              src="/gallery/about-2.jpg"
+              alt="Roasted coffee beans, up close"
+              fill
+              sizes="(min-width: 768px) 30vw, 100vw"
+              className="object-cover"
+            />
           </div>
           <LinksPanel site={site} className="mt-2 grid grid-cols-2 gap-6" />
         </Reveal>

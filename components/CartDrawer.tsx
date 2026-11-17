@@ -15,7 +15,8 @@ interface CartDrawerProps {
   menu: Menu;
   site: Site;
   copy: Record<string, string>;
-  paymentConfigured: boolean;
+  /** "razorpay" = live/test keys, "mock" = sandbox capture, "unconfigured" = no online payment. */
+  paymentMode: "razorpay" | "mock" | "unconfigured";
 }
 
 interface SuccessOrder {
@@ -42,7 +43,7 @@ function lineDisplayTotal(item: MenuItem, optionIds: string[], qty: number): num
  * order Pay at counter. The drawer slides with a spring and dims the page;
  * focus is trapped and Escape closes.
  */
-export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerProps) {
+export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
   const drawerOpen = useCart((s) => s.drawerOpen);
   const closeDrawer = useCart((s) => s.closeDrawer);
   const rawLines = useCart((s) => s.lines);
@@ -52,8 +53,16 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
 
-  const [phase, setPhase] = useState<"cart" | "placing" | "success" | "error">("cart");
+  const [phase, setPhase] = useState<"cart" | "placing" | "sandbox" | "success" | "error">("cart");
   const [errorReason, setErrorReason] = useState<"generic" | "unconfigured" | "script">("generic");
+  const [capturing, setCapturing] = useState(false);
+  const [sandboxOrder, setSandboxOrder] = useState<{
+    razorpayOrderId: string;
+    amount: number;
+    orderNumber: string;
+    pickupSlot: string | null;
+    items: { name: string; qty: number; lineTotal: number }[];
+  } | null>(null);
   const [orderType, setOrderType] = useState<"pickup" | "dine_in">("pickup");
   const [tableNumber, setTableNumber] = useState("");
   const [note, setNote] = useState("");
@@ -64,7 +73,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
 
   useDialogBehavior(panelRef, drawerOpen, () => {
     closeDrawer();
-    setPhase((p) => (p === "success" || p === "error" ? "cart" : p));
+    setPhase((p) => (p === "cart" ? p : "cart"));
   });
 
   useEffect(() => {
@@ -181,7 +190,24 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
         return;
       }
 
-      // Online: open Razorpay Checkout (PRD Section 6.5).
+      // Online: sandbox capture, or open Razorpay Checkout (PRD Section 6.5).
+      if (paymentMode === "mock") {
+        if (!data.razorpayOrderId) {
+          setErrorReason("generic");
+          setPhase("error");
+          return;
+        }
+        setSandboxOrder({
+          razorpayOrderId: data.razorpayOrderId,
+          amount: data.amount,
+          orderNumber: data.orderNumber,
+          pickupSlot: data.pickupSlot,
+          items: data.items,
+        });
+        setPhase("sandbox");
+        return;
+      }
+
       const loaded = await loadRazorpayCheckout();
       if (!loaded || !window.Razorpay || !data.razorpayOrderId || !data.publicKeyId) {
         setErrorReason("script"); // resilience: cart preserved, pay at counter offered
@@ -235,6 +261,48 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
     return slots.find((s) => s.value === value)?.label ?? value;
   };
 
+  function backToCart() {
+    setErrorReason("generic");
+    setPhase("cart");
+  }
+
+  async function simulateCapture(outcome: "success" | "failure") {
+    if (!sandboxOrder || capturing) return;
+    if (outcome === "failure") {
+      // Declined at the "gateway": nothing to verify, cart preserved.
+      setErrorReason("generic");
+      setPhase("error");
+      return;
+    }
+    setCapturing(true);
+    try {
+      const res = await fetch("/api/payments/mock-capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ razorpayOrderId: sandboxOrder.razorpayOrderId }),
+      });
+      if (res.ok) {
+        setResult({
+          orderNumber: sandboxOrder.orderNumber,
+          amount: sandboxOrder.amount,
+          pickupSlot: sandboxOrder.pickupSlot,
+          payMethod: "online",
+          items: sandboxOrder.items,
+        });
+        clear();
+        setPhase("success");
+      } else {
+        setErrorReason("generic");
+        setPhase("error");
+      }
+    } catch {
+      setErrorReason("generic");
+      setPhase("error");
+    } finally {
+      setCapturing(false);
+    }
+  }
+
   return (
     <AnimatePresence>
       {drawerOpen && (
@@ -282,13 +350,17 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
           >
             <div className="flex items-center justify-between border-b border-muted/10 px-5 py-4">
               <h2 className="font-display text-xl text-foreground">
-                {phase === "success" ? "Order placed" : "Your order"}
+                {phase === "success"
+                  ? "Order placed"
+                  : phase === "sandbox"
+                    ? "Sandbox payment"
+                    : "Your order"}
               </h2>
               <button
                 type="button"
                 onClick={() => {
                   closeDrawer();
-                  setPhase((p) => (p === "success" || p === "error" ? "cart" : p));
+                  setPhase((p) => (p === "cart" ? p : "cart"));
                 }}
                 aria-label="Close cart"
                 className="rounded-card border border-muted/30 p-2 text-foreground"
@@ -304,6 +376,45 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                 message={copy["success.line"] ?? "Order placed."}
                 onDone={resetAfterSuccess}
               />
+            ) : phase === "sandbox" && sandboxOrder ? (
+              <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6">
+                <p className="rounded-card border border-muted/40 bg-background px-4 py-3 text-sm text-muted">
+                  Sandbox mode: this simulates the Razorpay Checkout flow. No real money is charged
+                  - real keys take over automatically when configured.
+                </p>
+                <p className="font-display text-4xl text-foreground">
+                  {formatINR(sandboxOrder.amount)}
+                </p>
+                <p className="text-sm text-muted">
+                  Order {sandboxOrder.orderNumber} - choose an outcome to test both paths.
+                </p>
+                <div className="mt-auto flex flex-col gap-2">
+                  <button
+                    type="button"
+                    disabled={capturing}
+                    onClick={() => simulateCapture("success")}
+                    className="rounded-card bg-accent px-5 py-3 text-sm text-surface transition-opacity hover:opacity-90 disabled:opacity-40"
+                  >
+                    {capturing ? "Capturing..." : "Simulate successful payment"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={capturing}
+                    onClick={() => simulateCapture("failure")}
+                    className="rounded-card border border-muted/40 bg-surface px-5 py-3 text-sm text-foreground hover:border-foreground disabled:opacity-40"
+                  >
+                    Simulate failed payment
+                  </button>
+                  <button
+                    type="button"
+                    disabled={capturing}
+                    onClick={backToCart}
+                    className="rounded-card px-5 py-2 text-sm text-muted underline underline-offset-2"
+                  >
+                    Back to cart
+                  </button>
+                </div>
+              </div>
             ) : phase === "error" ? (
               <div className="flex flex-1 flex-col gap-4 p-6">
                 <p className="text-foreground">
@@ -504,7 +615,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                     <div className="mt-4 flex gap-2">
                       <button
                         type="button"
-                        disabled={phase !== "cart" || !paymentConfigured}
+                        disabled={phase !== "cart" || paymentMode === "unconfigured"}
                         onClick={() => handlePay("online")}
                         className="flex-1 rounded-card bg-accent px-4 py-3 text-sm text-surface transition-opacity hover:opacity-90 disabled:opacity-40"
                       >
@@ -520,9 +631,11 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                       </button>
                     </div>
                     <p className="mt-2 text-xs text-muted">
-                      {paymentConfigured
-                        ? `Prices include taxes. Paid in INR.`
-                        : "Online payment is not set up on this deployment yet - use Pay at counter."}
+                      {paymentMode === "mock"
+                        ? "Sandbox mode: online payments are simulated - no real charge."
+                        : paymentMode === "razorpay"
+                          ? "Prices include taxes. Paid in INR."
+                          : "Online payment is not set up on this deployment yet - use Pay at counter."}
                     </p>
                   </div>
                 )}
