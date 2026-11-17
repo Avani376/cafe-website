@@ -27,9 +27,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status });
   }
 
-  const paidOrder = (
-    result as { paidOrder?: { orderNumber: string; total: number; linesJson: string } | undefined }
-  ).paidOrder;
+  const paidOrder = result.paidOrder;
   if (paidOrder && !result.replay) {
     const items = JSON.parse(paidOrder.linesJson) as { name: string; qty: number }[];
     void sendNotification({
