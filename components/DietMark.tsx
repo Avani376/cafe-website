@@ -1,7 +1,8 @@
 /*
  * Standard Indian dietary marks (PRD Section 6.3): green square with a dot
  * for veg, bordered square with a triangle for non-veg. Colors come from
- * tokens (TODO(theme): non-veg mark traditionally uses brown).
+ * tokens; the FSSAI brown for non-veg is approximated by --danger (see
+ * design/tokens.md, owner notes).
  */
 export function DietMark({ diet }: { diet: "veg" | "non-veg" }) {
   const color = diet === "veg" ? "var(--success)" : "var(--danger)";

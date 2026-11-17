@@ -3,23 +3,22 @@
 /*
  * Design tokens - the only colors and fonts in the project live here.
  *
- * PROVISIONAL: design/theme.png does not exist in the repo yet, so every
- * value below is a neutral placeholder, not the cafe's brand. Each is marked
- * TODO(theme) and must be replaced once the owner provides the theme image
- * or a palette (see the Questions section in design/tokens.md).
- *
- * Components consume these tokens only through Tailwind utilities mapped in
- * the @theme inline block below. No hard-coded hex values in components.
+ * Theme v1 "Paper & Espresso", chosen by the developer (owner-approved
+ * path pending): warm paper background, espresso ink, terracotta accent.
+ * Roles per PRD Section 4.1; every text pair is WCAG AA checked (see
+ * design/tokens.md). The owner can override any value here - components
+ * consume tokens only through the Tailwind mapping below, so nothing else
+ * changes. No hard-coded hex values in components.
  */
 :root {
-  --background: #faf9f7; /* TODO(theme) provisional warm paper neutral */
-  --surface: #ffffff; /* TODO(theme) provisional card and sheet surface */
-  --foreground: #1c1917; /* TODO(theme) provisional near-black text */
-  --muted: #78716c; /* TODO(theme) provisional secondary text, hairlines */
-  --accent: #1c1917; /* TODO(theme) provisional neutral accent, primary actions */
-  --danger: #b91c1c; /* TODO(theme) provisional accessible error red */
-  --success: #15803d; /* TODO(theme) provisional accessible success green */
-  --radius: 12px; /* TODO(theme) provisional corner radius */
+  --background: #f6f1e7; /* warm paper cream - page background */
+  --surface: #fffdf6; /* steamed-milk white - cards, header, drawer */
+  --foreground: #231a12; /* espresso ink - primary text */
+  --muted: #6b5d4f; /* roast taupe - secondary text, hairlines */
+  --accent: #9c4a26; /* terracotta - primary actions, links */
+  --danger: #b3261e; /* brick red - errors, destructive actions */
+  --success: #2e7d32; /* leaf green - open badge, veg mark, success */
+  --radius: 14px; /* soft card corner radius */
 }
 
 /*
@@ -36,10 +35,9 @@
   --color-success: var(--success);
   --radius-card: var(--radius);
 
-  /* next/font variables from app/layout.tsx, with plain fallback stacks.
-     TODO(theme): pairing is provisional until the theme image is reviewed. */
+  /* next/font variables from app/layout.tsx, with plain fallback stacks. */
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-body: var(--font-public-sans), system-ui, sans-serif;
+  --font-body: var(--font-work-sans), system-ui, sans-serif;
 }
 
 body {

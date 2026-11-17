@@ -9,7 +9,7 @@ Spec: [docs/PRD.md](docs/PRD.md). Work is delivered phase by phase
 
 | Phase | Scope                                         | Status                                                                |
 | ----- | --------------------------------------------- | --------------------------------------------------------------------- |
-| 0     | Foundation: scaffold, tokens, style test page | Done, with provisional tokens (theme image missing)                   |
+| 0     | Foundation: scaffold, tokens, style test page | Done - theme v1 applied                                               |
 | 1     | Static layout                                 | Done - placeholder photos/copy pending owner                          |
 | 2     | Motion layer                                  | Done - reduced-motion fallbacks throughout                            |
 | 3     | Cart                                          | Done - persisted, pricing unit-tested                                 |
@@ -17,11 +17,11 @@ Spec: [docs/PRD.md](docs/PRD.md). Work is delivered phase by phase
 | 5     | Links panel and feedback                      | Not started (links panel already rendered from site.json)             |
 | 6     | Polish and launch                             | Not started                                                           |
 
-> **Design tokens are provisional.** `design/theme.png` is missing, so
-> [design/tokens.md](design/tokens.md) carries neutral `TODO(theme)`
-> placeholders wired through `app/globals.css`. They must be replaced before
-> the Phase 1 layout can be accepted visually; the open questions are listed
-> in that file.
+> **Theme v1 "Paper & Espresso" applied.** The developer chose the palette
+> (warm paper, espresso ink, terracotta accent) and the Fraunces + Work Sans
+> pairing, documented in [design/tokens.md](design/tokens.md) with WCAG AA
+> contrast checks. The owner can override every value in one file
+> (`app/globals.css`).
 >
 > **Content is placeholder.** Menu items, prices, hours, address, links and
 > copy in `/content` are plainly-written stand-ins marked for owner

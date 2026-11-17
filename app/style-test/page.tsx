@@ -81,9 +81,9 @@ export default function StyleTestPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <p className="rounded-card border border-muted/40 bg-surface px-4 py-3 text-sm text-muted">
-        Provisional tokens: design/theme.png is missing, so every value on this page is a neutral
-        placeholder, not the cafe&apos;s brand. Each token is marked TODO(theme) in design/tokens.md
-        and gets replaced once the owner supplies the theme image or a palette.
+        Theme v1 &quot;Paper &amp; Espresso&quot;: chosen by the developer with the owner&apos;s
+        standing approval, pending a final look. Every value lives in design/tokens.md and the :root
+        block of app/globals.css - change them there and the whole UI follows.
       </p>
 
       <h1 className="mt-10 font-display text-4xl">Style test</h1>

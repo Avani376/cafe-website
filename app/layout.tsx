@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Fraunces, Public_Sans } from "next/font/google";
+import { Fraunces, Work_Sans } from "next/font/google";
 import { getSite } from "@/lib/content";
 import "./globals.css";
 
 /*
- * TODO(theme): this pairing is provisional because design/theme.png is
- * missing from the repo. Swap the families here (and in design/tokens.md and
- * app/globals.css) once the owner confirms the real theme. Both fonts are
- * loaded with next/font and exposed as CSS variables that the Tailwind theme
- * maps to the font-display and font-body utilities.
+ * Theme v1 "Paper & Espresso" pairing: Fraunces for display (warm, slightly
+ * wonky serif that suits a specialty cafe) and Work Sans for body text
+ * (humanist, highly legible). Both are loaded with next/font and exposed as
+ * CSS variables that the Tailwind theme maps to the font-display and
+ * font-body utilities. To change the pairing, edit here, the fallback
+ * stacks in app/globals.css, and design/tokens.md.
  */
 const display = Fraunces({
   subsets: ["latin"],
@@ -16,9 +17,9 @@ const display = Fraunces({
   display: "swap",
 });
 
-const body = Public_Sans({
+const body = Work_Sans({
   subsets: ["latin"],
-  variable: "--font-public-sans",
+  variable: "--font-work-sans",
   display: "swap",
 });
 
