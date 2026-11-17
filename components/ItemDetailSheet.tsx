@@ -60,7 +60,7 @@ export function ItemDetailSheet({ item, hasImage, onClose }: ItemDetailSheetProp
             animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 48 }}
             transition={springs.soft}
-            className="relative z-10 max-h-88dvh w-full overflow-y-auto rounded-t-2xl border border-muted/20 bg-surface md:max-w-lg md:rounded-card"
+            className="relative z-10 max-h-[88dvh] w-full overflow-y-auto rounded-t-2xl border border-muted/20 bg-surface md:max-w-lg md:rounded-card"
           >
             <motion.div
               layoutId={reduce ? undefined : `item-image-${item.id}`}

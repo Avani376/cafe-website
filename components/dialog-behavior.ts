@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 /*
  * Minimal focus trap for drawers, sheets and modals (PRD Section 10,
  * Accessibility: focus trap in drawers and modals). Escape closes.
+ *
+ * The close callback is kept in a ref so the trap effect does not re-run
+ * (and re-focus) on every render of the caller - otherwise typing in a
+ * field inside the dialog would lose focus on each keystroke.
  */
 export function useDialogBehavior(
   ref: RefObject<HTMLElement | null>,
   open: boolean,
   onClose: () => void,
 ) {
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!open) return;
     const container = ref.current;
@@ -30,7 +39,7 @@ export function useDialogBehavior(
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -52,5 +61,5 @@ export function useDialogBehavior(
       document.removeEventListener("keydown", onKeyDown, true);
       previouslyFocused?.focus();
     };
-  }, [open, onClose, ref]);
+  }, [open, ref]);
 }

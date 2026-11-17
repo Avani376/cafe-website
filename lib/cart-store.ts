@@ -68,7 +68,8 @@ export const useCart = create<CartState>()(
       name: "cafe-cart",
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ lines: state.lines }) as CartState,
+      // Only the lines persist; drawerOpen always starts closed on reload.
+      partialize: (state) => ({ lines: state.lines }),
     },
   ),
 );

@@ -7,7 +7,7 @@ import { orderRequestSchema } from "@/lib/order-schema";
 import { createOrder, OrderError } from "@/lib/orders";
 import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { sendNotification } from "@/lib/notify";
-import { formatINR } from "@/lib/pricing";
+import { formatINR, toPaise } from "@/lib/pricing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,6 +68,8 @@ export async function POST(request: Request) {
       orderNumber: order.orderNumber,
       payMethod: kind,
       amount: order.total,
+      // Razorpay Checkout expects paise; rupees stay the app-wide unit.
+      amountPaise: toPaise(order.total),
       currency: "INR",
       razorpayOrderId: order.razorpayOrderId,
       publicKeyId,

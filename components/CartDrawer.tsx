@@ -8,7 +8,7 @@ import { loadRazorpayCheckout } from "@/lib/razorpay-client";
 import { springs } from "@/lib/motion";
 import { computeCart, formatINR } from "@/lib/pricing";
 import { getPickupSlots, type PickupSlot } from "@/lib/hours";
-import type { Menu, Site } from "@/lib/content";
+import type { Menu, Site, MenuItem } from "@/lib/content";
 import { useDialogBehavior } from "./dialog-behavior";
 
 interface CartDrawerProps {
@@ -24,6 +24,15 @@ interface SuccessOrder {
   pickupSlot: string | null;
   payMethod: "online" | "pay_at_counter";
   items: { name: string; qty: number; lineTotal: number }[];
+}
+
+/** Display-only line total, safe even if the item became unavailable. */
+function lineDisplayTotal(item: MenuItem, optionIds: string[], qty: number): number {
+  const options = optionIds.reduce(
+    (sum, id) => sum + (item.options.find((o) => o.id === id)?.price ?? 0),
+    0,
+  );
+  return (item.price + options) * qty;
 }
 
 /*
@@ -44,6 +53,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   const [phase, setPhase] = useState<"cart" | "placing" | "success" | "error">("cart");
+  const [errorReason, setErrorReason] = useState<"generic" | "unconfigured" | "script">("generic");
   const [orderType, setOrderType] = useState<"pickup" | "dine_in">("pickup");
   const [tableNumber, setTableNumber] = useState("");
   const [note, setNote] = useState("");
@@ -141,12 +151,15 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
         }),
       });
       if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setErrorReason(body?.error === "payment_unconfigured" ? "unconfigured" : "generic");
         setPhase("error");
         return;
       }
       const data = (await res.json()) as {
         orderNumber: string;
         amount: number;
+        amountPaise: number;
         currency: string;
         payMethod: "online" | "pay_at_counter";
         pickupSlot: string | null;
@@ -171,14 +184,15 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
       // Online: open Razorpay Checkout (PRD Section 6.5).
       const loaded = await loadRazorpayCheckout();
       if (!loaded || !window.Razorpay || !data.razorpayOrderId || !data.publicKeyId) {
-        setPhase("error"); // resilience: cart preserved, pay at counter offered
+        setErrorReason("script"); // resilience: cart preserved, pay at counter offered
+        setPhase("error");
         return;
       }
       setPhase("placing"); // keep drawer blocked while Checkout is open
       const checkout = new window.Razorpay({
         key: data.publicKeyId,
         order_id: data.razorpayOrderId,
-        amount: data.amount, // paise, computed server-side
+        amount: data.amountPaise, // paise, computed server-side once
         currency: data.currency,
         name: site.name,
         description: `Order ${data.orderNumber}`,
@@ -211,6 +225,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
       });
       checkout.open();
     } catch {
+      setErrorReason("generic");
       setPhase("error");
     }
   }
@@ -262,7 +277,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
             className={`absolute flex flex-col border-muted/20 bg-surface ${
               desktop
                 ? "bottom-0 right-0 top-0 flex w-[420px] rounded-l-2xl border-l"
-                : "inset-x-0 bottom-0 max-h-88dvh rounded-t-2xl border-t"
+                : "inset-x-0 bottom-0 max-h-[88dvh] rounded-t-2xl border-t"
             }`}
           >
             <div className="flex items-center justify-between border-b border-muted/10 px-5 py-4">
@@ -295,14 +310,23 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                   {copy["paymentFailure.line"] ??
                     "The payment did not go through. Your cart is safe."}
                 </p>
-                {!paymentConfigured && (
+                {errorReason === "unconfigured" && (
                   <p className="text-sm text-muted">
                     Online payment is not set up on this deployment yet. Use Pay at counter.
                   </p>
                 )}
+                {errorReason === "script" && (
+                  <p className="text-sm text-muted">
+                    The payment window could not load. Your cart is safe - try again or use Pay at
+                    counter.
+                  </p>
+                )}
                 <button
                   type="button"
-                  onClick={() => setPhase("cart")}
+                  onClick={() => {
+                    setErrorReason("generic");
+                    setPhase("cart");
+                  }}
                   className="rounded-card border border-muted/40 bg-surface px-5 py-3 text-sm text-foreground hover:border-foreground"
                 >
                   Back to cart
@@ -320,9 +344,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                       <ul className="flex flex-col divide-y divide-muted/10">
                         {lines.map((line) => {
                           const key = lineKey(line);
-                          const lineTotal = totals.lines.find(
-                            (pl) => pl.itemId === line.itemId && pl.qty === line.qty,
-                          )?.lineTotal;
+                          const lineTotal = lineDisplayTotal(line.item, line.optionIds, line.qty);
                           return (
                             <li key={key} className="flex items-center gap-3 py-3">
                               <div className="min-w-0 flex-1">
@@ -368,7 +390,7 @@ export function CartDrawer({ menu, site, copy, paymentConfigured }: CartDrawerPr
                                 </button>
                               </div>
                               <span className="w-16 text-right text-sm text-foreground">
-                                {lineTotal !== undefined ? formatINR(lineTotal) : ""}
+                                {formatINR(lineTotal)}
                               </span>
                             </li>
                           );
