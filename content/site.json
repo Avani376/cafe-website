@@ -1,7 +1,7 @@
 {
-  "_note": "PLACEHOLDER site data - every value here must be replaced with the owner's real details (PRD Section 14.3, 14.5). Hours are Asia/Kolkata. Link URLs are placeholders (#) until the owner supplies real handles.",
-  "name": "The Cafe",
-  "tagline": "Neighbourhood cafe",
+  "_note": "PLACEHOLDER site data - name and tagline were chosen by the developer per the owner's request (theme v2 'Ember After Dark'); every other value must be replaced with the owner's real details (PRD Section 14.3, 14.5). Hours are Asia/Kolkata. Link URLs are placeholders (#) until the owner supplies real handles.",
+  "name": "Ember & Ink",
+  "tagline": "Speciality coffee house",
   "address": "Shop 12, Sample Street, Sample Locality, Bengaluru 560001",
   "phone": "+91-00000-00000",
   "mapUrl": "https://maps.google.com",

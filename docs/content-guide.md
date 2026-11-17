@@ -6,6 +6,9 @@ them (working rule 4).
 
 > **Status: PLACEHOLDER content.** Everything in this folder must be
 > confirmed or replaced by the owner before launch (PRD Sections 14 and 13).
+> Exception: the cafe name "Ember & Ink" and tagline in `site.json` were
+> chosen by the developer at the owner's request (theme v2 "Ember After
+> Dark") - change both in one place if the owner picks a different name.
 
 ## menu.json
 

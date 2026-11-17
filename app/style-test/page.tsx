@@ -16,43 +16,43 @@ export const metadata: Metadata = {
 const palette = [
   {
     varName: "--background",
-    value: "#faf9f7",
+    value: "#0e1618",
     role: "Page background",
     swatchClass: "bg-background",
   },
   {
     varName: "--surface",
-    value: "#ffffff",
+    value: "#152022",
     role: "Cards, sheets, header",
     swatchClass: "bg-surface",
   },
   {
     varName: "--foreground",
-    value: "#1c1917",
+    value: "#efe6d5",
     role: "Primary text",
     swatchClass: "bg-foreground",
   },
   {
     varName: "--muted",
-    value: "#78716c",
+    value: "#a89c87",
     role: "Secondary text, hairline borders",
     swatchClass: "bg-muted",
   },
   {
     varName: "--accent",
-    value: "#1c1917",
+    value: "#e0a13e",
     role: "Primary actions, links",
     swatchClass: "bg-accent",
   },
   {
     varName: "--danger",
-    value: "#b91c1c",
+    value: "#e66854",
     role: "Errors, destructive actions",
     swatchClass: "bg-danger",
   },
   {
     varName: "--success",
-    value: "#15803d",
+    value: "#6fbf73",
     role: "Open now badge, success states",
     swatchClass: "bg-success",
   },
@@ -81,9 +81,10 @@ export default function StyleTestPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <p className="rounded-card border border-muted/40 bg-surface px-4 py-3 text-sm text-muted">
-        Theme v1 &quot;Paper &amp; Espresso&quot;: chosen by the developer with the owner&apos;s
-        standing approval, pending a final look. Every value lives in design/tokens.md and the :root
-        block of app/globals.css - change them there and the whole UI follows.
+        Theme v2 &quot;Ember After Dark&quot;: adapted from the owner&apos;s reference (dark,
+        elegant, amber accent, subtle grain) and named for the cafe &quot;Ember &amp; Ink&quot;.
+        Every value lives in design/tokens.md and the :root block of app/globals.css - change them
+        there and the whole UI follows.
       </p>
 
       <h1 className="mt-10 font-display text-4xl">Style test</h1>
@@ -113,8 +114,7 @@ export default function StyleTestPage() {
       <section className="mt-12">
         <h2 className="font-display text-3xl">Type scale</h2>
         <p className="mt-2 text-sm text-muted">
-          Display font is provisional (Fraunces via next/font). Body font is provisional (Public
-          Sans via next/font).
+          Display font is Playfair Display (next/font). Body font is Work Sans (next/font).
         </p>
         <ul className="mt-6 space-y-6">
           {typeScale.map((item) => (

@@ -17,11 +17,12 @@ Spec: [docs/PRD.md](docs/PRD.md). Work is delivered phase by phase
 | 5     | Links panel and feedback                      | Not started (links panel already rendered from site.json)             |
 | 6     | Polish and launch                             | Not started                                                           |
 
-> **Theme v1 "Paper & Espresso" applied.** The developer chose the palette
-> (warm paper, espresso ink, terracotta accent) and the Fraunces + Work Sans
-> pairing, documented in [design/tokens.md](design/tokens.md) with WCAG AA
-> contrast checks. The owner can override every value in one file
-> (`app/globals.css`).
+> **Theme v2 "Ember After Dark" applied.** Adapted from the owner's dark
+> elegant reference: petrol-charcoal surfaces, ivory text, ember-amber
+> accent, subtle film grain, Playfair Display + Work Sans. Cafe name:
+> **Ember & Ink**. Full rationale and WCAG AA contrast checks in
+> [design/tokens.md](design/tokens.md); every value is overridable in one
+> file (`app/globals.css`).
 >
 > **Content is placeholder.** Menu items, prices, hours, address, links and
 > copy in `/content` are plainly-written stand-ins marked for owner

@@ -3,21 +3,24 @@
 /*
  * Design tokens - the only colors and fonts in the project live here.
  *
- * Theme v1 "Paper & Espresso", chosen by the developer (owner-approved
- * path pending): warm paper background, espresso ink, terracotta accent.
- * Roles per PRD Section 4.1; every text pair is WCAG AA checked (see
- * design/tokens.md). The owner can override any value here - components
- * consume tokens only through the Tailwind mapping below, so nothing else
- * changes. No hard-coded hex values in components.
+ * Theme v2 "Ember After Dark", adapted from the owner's reference (dark,
+ * elegant restaurant theme): deep petrol-charcoal surfaces, ivory text,
+ * amber ember accent, subtle film grain on the page. Roles per PRD Section
+ * 4.1; every text pair is WCAG AA checked (see design/tokens.md). Note one
+ * deliberate accessibility upgrade over the reference: buttons are amber
+ * with dark ink text (7.5:1), not white-on-amber (~2.2:1, fails AA).
+ *
+ * The owner can override any value here - components consume tokens only
+ * through the Tailwind mapping below. No hard-coded hex in components.
  */
 :root {
-  --background: #f6f1e7; /* warm paper cream - page background */
-  --surface: #fffdf6; /* steamed-milk white - cards, header, drawer */
-  --foreground: #231a12; /* espresso ink - primary text */
-  --muted: #6b5d4f; /* roast taupe - secondary text, hairlines */
-  --accent: #9c4a26; /* terracotta - primary actions, links */
-  --danger: #b3261e; /* brick red - errors, destructive actions */
-  --success: #2e7d32; /* leaf green - open badge, veg mark, success */
+  --background: #0e1618; /* petrol charcoal - page background, hero, footer */
+  --surface: #152022; /* elevated dark - cards, header, drawer, sheets */
+  --foreground: #efe6d5; /* warm ivory - primary text on dark */
+  --muted: #a89c87; /* lamp-lit taupe - secondary text, hairlines */
+  --accent: #e0a13e; /* ember amber - primary actions, links, tabs */
+  --danger: #e66854; /* warm signal red - errors, destructive, non-veg mark */
+  --success: #6fbf73; /* leaf green - open badge, veg mark, success stamp */
   --radius: 14px; /* soft card corner radius */
 }
 
@@ -36,13 +39,26 @@
   --radius-card: var(--radius);
 
   /* next/font variables from app/layout.tsx, with plain fallback stacks. */
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
   --font-body: var(--font-work-sans), system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Subtle film grain over the page (PRD Section 5.11, matches the dark
+   reference theme). Static, non-interactive, gentle enough to keep text AA;
+   modal overlays (z-50) sit above it. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Smooth scroll to sections; the sticky header offset comes from

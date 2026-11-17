@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, Work_Sans } from "next/font/google";
+import { Playfair_Display, Work_Sans } from "next/font/google";
 import { getSite } from "@/lib/content";
 import "./globals.css";
 
 /*
- * Theme v1 "Paper & Espresso" pairing: Fraunces for display (warm, slightly
- * wonky serif that suits a specialty cafe) and Work Sans for body text
- * (humanist, highly legible). Both are loaded with next/font and exposed as
- * CSS variables that the Tailwind theme maps to the font-display and
- * font-body utilities. To change the pairing, edit here, the fallback
- * stacks in app/globals.css, and design/tokens.md.
+ * Theme v2 "Ember After Dark" pairing, matching the owner's reference:
+ * Playfair Display for display (high-contrast elegant serif, carries the
+ * fine-dining tone) and Work Sans for body text (humanist, legible on
+ * mobile). Both are loaded with next/font and exposed as CSS variables that
+ * the Tailwind theme maps to the font-display and font-body utilities. To
+ * change the pairing, edit here, the fallback stacks in app/globals.css,
+ * and design/tokens.md.
  */
-const display = Fraunces({
+const display = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-playfair",
   display: "swap",
 });
 
