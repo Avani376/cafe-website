@@ -7,6 +7,7 @@ import { About } from "@/components/About";
 import { Visit, Footer } from "@/components/Visit";
 import { CartDrawer } from "@/components/CartDrawer";
 import { FeedbackForm } from "@/components/FeedbackForm";
+import { GalleryStrip } from "@/components/GalleryStrip";
 import { Reveal } from "@/components/Reveal";
 
 /*
@@ -36,6 +37,7 @@ export default function Home() {
           tagline={site.tagline}
         />
         <MenuSection menu={menu} images={images} />
+        <GalleryStrip />
         <About site={site} story={copy["about.story"] ?? ""} />
         <Visit site={site} />
 

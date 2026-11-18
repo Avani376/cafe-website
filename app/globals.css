@@ -67,8 +67,36 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Ambience strip marquee (PRD Section 7): transform-only, pauses on hover,
+   and reduces to a static scrollable row under prefers-reduced-motion. */
+@keyframes ember-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ember-marquee-track {
+  animation: ember-marquee 45s linear infinite;
+  will-change: transform;
+}
+
+.ember-marquee:hover .ember-marquee-track {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .ember-marquee-track {
+    animation: none;
+  }
+
+  .ember-marquee {
+    overflow-x: auto;
   }
 }
