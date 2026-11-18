@@ -75,6 +75,7 @@ export const useCart = create<CartState>()(
       openDrawer: () => set({ drawerOpen: true }),
       closeDrawer: () => set({ drawerOpen: false }),
     }),
+    {
       name: "cafe-cart",
       version: 1,
       storage: createJSONStorage(() => localStorage),
