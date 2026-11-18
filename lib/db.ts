@@ -60,8 +60,22 @@ export const webhookEvents = sqliteTable("webhook_events", {
   receivedAt: integer("received_at").notNull(),
 });
 
+// Feedback submissions (PRD Section 6.7). Personal data is kept to the
+// minimum the visitor chooses to share; everything except the message and
+// rating is optional.
+export const feedback = sqliteTable("feedback", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  rating: integer("rating").notNull(),
+  orderedItem: text("ordered_item"),
+  message: text("message").notNull(),
+  contact: text("contact"),
+  createdAt: integer("created_at").notNull(),
+});
+
 export type OrderRow = typeof orders.$inferSelect;
 export type NewOrderRow = typeof orders.$inferInsert;
+export type FeedbackRow = typeof feedback.$inferSelect;
 
 const CREATE_TABLES: readonly string[] = [
   `CREATE TABLE IF NOT EXISTS orders (
@@ -92,9 +106,18 @@ const CREATE_TABLES: readonly string[] = [
     event_id TEXT PRIMARY KEY,
     received_at INTEGER NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS feedback (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    rating INTEGER NOT NULL,
+    ordered_item TEXT,
+    message TEXT NOT NULL,
+    contact TEXT,
+    created_at INTEGER NOT NULL
+  )`,
 ];
 
-const schema = { orders, payments, webhookEvents };
+const schema = { orders, payments, webhookEvents, feedback };
 
 export type CafeDatabase = BetterSQLite3Database<typeof schema> & {
   $client: Database.Database;

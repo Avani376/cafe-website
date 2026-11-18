@@ -6,16 +6,14 @@ import { MenuSection } from "@/components/Menu";
 import { About } from "@/components/About";
 import { Visit, Footer } from "@/components/Visit";
 import { CartDrawer } from "@/components/CartDrawer";
+import { FeedbackForm } from "@/components/FeedbackForm";
 import { Reveal } from "@/components/Reveal";
 
 /*
  * Single-page composition (PRD Section 3): hero, menu, about + links,
- * visit, footer, cart drawer. All content comes from /content (working
- * rule 4); the payment provider is checked server-side so the client knows
- * whether online checkout is available.
- *
- * The feedback form arrives in Phase 5; a plainly written placeholder keeps
- * the header anchor working until then.
+ * visit, feedback form, footer, cart drawer. All content comes from
+ * /content (working rule 4); the payment provider is checked server-side so
+ * the client knows whether online checkout is available.
  */
 export default function Home() {
   const menu = getMenu();
@@ -42,13 +40,17 @@ export default function Home() {
         <Visit site={site} />
 
         <section id="feedback" className="scroll-mt-24 border-t border-muted/10">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <Reveal>
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-12">
+            <Reveal className="md:col-span-5">
               <h2 className="font-display text-4xl text-foreground">Feedback</h2>
               <p className="mt-4 max-w-prose text-muted">
-                The feedback form arrives in a later phase of this build. Until then, tell us in
-                person or through the links above.
+                Thirty seconds, no account, no fuss. Tell us what worked and what did not - we read
+                every note.
               </p>
+              <p className="mt-3 text-sm text-muted/80">{copy["privacy.note"] ?? ""}</p>
+            </Reveal>
+            <Reveal delay={0.04} className="md:col-span-7">
+              <FeedbackForm />
             </Reveal>
           </div>
         </section>
