@@ -1,0 +1,6 @@
+# Local data and tooling state never belong in a deployment bundle.
+db
+.mimosa
+.env.local
+.env*.local
+.vercel

@@ -19,7 +19,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
  */
 
 /** Literally allowed database targets. Everything else is rejected. */
-const ALLOWED_DB_TARGETS = [":memory:", "db/cafe.db"] as const;
+const ALLOWED_DB_TARGETS = [":memory:", "db/cafe.db", "/tmp/cafe.db"] as const;
 export type DbTarget = (typeof ALLOWED_DB_TARGETS)[number];
 
 export function isAllowedDbTarget(value: string): value is DbTarget {
@@ -115,16 +115,30 @@ export function createDb(target: DbTarget): CafeDatabase {
 
 let singleton: CafeDatabase | null = null;
 
-/** App-wide database handle. Env override is limited to the allowlist. */
+/** App-wide database handle. Env override is limited to the allowlist.
+ *
+ *  On serverless (Vercel sets VERCEL=1) the project filesystem is read-only,
+ *  so the database moves to /tmp/cafe.db - the only writable location. /tmp
+ *  is per-instance and ephemeral: sandbox orders reset with the instance
+ *  until durable storage (Supabase Postgres) is configured - see
+ *  docs/payments.md. */
 export function getDb(): CafeDatabase {
   if (!singleton) {
     const fromEnv = process.env.DATABASE_URL?.replace(/^file:/, "").trim();
     if (fromEnv !== undefined && !isAllowedDbTarget(fromEnv)) {
       throw new Error(
-        "DATABASE_URL must be db/cafe.db (or omit it). The allowlist is in lib/db.ts.",
+        "DATABASE_URL must be db/cafe.db or /tmp/cafe.db (or omit it). The allowlist is in lib/db.ts.",
       );
     }
-    singleton = createDb(fromEnv ?? "db/cafe.db");
+    let target: DbTarget;
+    if (fromEnv !== undefined) {
+      target = fromEnv;
+    } else if (process.env.VERCEL === "1") {
+      target = "/tmp/cafe.db";
+    } else {
+      target = "db/cafe.db";
+    }
+    singleton = createDb(target);
   }
   return singleton;
 }
