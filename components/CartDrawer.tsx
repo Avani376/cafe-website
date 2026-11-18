@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Minus, Plus, X } from "lucide-react";
 import { lineKey, useCart } from "@/lib/cart-store";
@@ -24,6 +25,8 @@ interface SuccessOrder {
   amount: number;
   pickupSlot: string | null;
   payMethod: "online" | "pay_at_counter";
+  orderType: string;
+  tableNumber: string | null;
   items: { name: string; qty: number; lineTotal: number }[];
 }
 
@@ -53,6 +56,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
   const lastOrder = useCart((s) => s.lastOrder);
   const reorderLastOrder = useCart((s) => s.reorderLastOrder);
   const saveLastOrder = useCart((s) => s.saveLastOrder);
+  const saveReceipt = useCart((s) => s.saveReceipt);
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -186,9 +190,22 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           amount: data.amount,
           pickupSlot: data.pickupSlot,
           payMethod: "pay_at_counter",
+          orderType,
+          tableNumber: orderType === "dine_in" ? tableNumber || null : null,
           items: data.items,
         });
         saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
+        saveReceipt({
+          orderNumber: data.orderNumber,
+          status: "pay_at_counter",
+          orderType,
+          tableNumber: orderType === "dine_in" ? tableNumber || null : null,
+          pickupSlot: data.pickupSlot,
+          items: data.items,
+          total: data.amount,
+          createdAt: Date.now(),
+          paymentLabel: "Pay at counter",
+        });
         clear();
         setPhase("success");
         return;
@@ -242,9 +259,22 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
               amount: data.amount,
               pickupSlot: data.pickupSlot,
               payMethod: "online",
+              orderType,
+              tableNumber: orderType === "dine_in" ? tableNumber || null : null,
               items: data.items,
             });
             saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
+            saveReceipt({
+              orderNumber: data.orderNumber,
+              status: "paid",
+              orderType,
+              tableNumber: orderType === "dine_in" ? tableNumber || null : null,
+              pickupSlot: data.pickupSlot,
+              items: data.items,
+              total: data.amount,
+              createdAt: Date.now(),
+              paymentLabel: "Paid online",
+            });
             clear();
             setPhase("success");
           } else {
@@ -292,9 +322,22 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           amount: sandboxOrder.amount,
           pickupSlot: sandboxOrder.pickupSlot,
           payMethod: "online",
+          orderType,
+          tableNumber: orderType === "dine_in" ? tableNumber || null : null,
           items: sandboxOrder.items,
         });
         saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
+        saveReceipt({
+          orderNumber: sandboxOrder.orderNumber,
+          status: "paid",
+          orderType,
+          tableNumber: orderType === "dine_in" ? tableNumber || null : null,
+          pickupSlot: sandboxOrder.pickupSlot,
+          items: sandboxOrder.items,
+          total: sandboxOrder.amount,
+          createdAt: Date.now(),
+          paymentLabel: "Paid online (sandbox)",
+        });
         clear();
         setPhase("success");
       } else {
@@ -734,6 +777,20 @@ function SuccessScreen({
         </p>
         <p className="mt-2">Take a screenshot - the counter will ask for it.</p>
       </div>
+
+      {result.orderType === "dine_in" && (
+        <p className="text-center text-sm text-accent">
+          Show this receipt at the counter to confirm your table.
+        </p>
+      )}
+
+      <Link
+        href={`/receipt/${result.orderNumber}`}
+        target="_blank"
+        className="mx-auto flex items-center gap-2 rounded-card border border-muted/40 bg-surface px-5 py-2.5 text-sm text-foreground transition-colors hover:border-foreground"
+      >
+        View receipt
+      </Link>
 
       <button
         type="button"

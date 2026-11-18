@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { ReceiptData } from "@/lib/receipt-schema";
 
 /*
  * Cart state (PRD Section 6.4). The store holds ids and quantities only -
@@ -26,12 +27,15 @@ interface CartState {
   lines: CartLine[];
   /** Snapshot of the most recently placed order, for one-tap reorder (PRD Section 8.5). */
   lastOrder: CartLine[] | null;
+  /** Receipt snapshot of the most recent order, so /receipt/[orderNumber] can render even if the server DB is ephemeral. */
+  receipt: ReceiptData | null;
   drawerOpen: boolean;
   add: (itemId: string, optionIds?: string[], qty?: number) => void;
   setQty: (key: string, qty: number) => void;
   removeLine: (key: string) => void;
   clear: () => void;
   saveLastOrder: (lines: CartLine[]) => void;
+  saveReceipt: (receipt: ReceiptData) => void;
   reorderLastOrder: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -42,6 +46,7 @@ export const useCart = create<CartState>()(
     (set) => ({
       lines: [],
       lastOrder: null,
+      receipt: null,
       drawerOpen: false,
       add: (itemId, optionIds = [], qty = 1) =>
         set((state) => {
@@ -67,6 +72,7 @@ export const useCart = create<CartState>()(
         set((state) => ({ lines: state.lines.filter((l) => lineKey(l) !== key) })),
       clear: () => set({ lines: [] }),
       saveLastOrder: (lines) => set({ lastOrder: lines }),
+      saveReceipt: (receipt) => set({ receipt }),
       reorderLastOrder: () =>
         set((state) => {
           if (!state.lastOrder || state.lastOrder.length === 0) return {};
@@ -79,8 +85,12 @@ export const useCart = create<CartState>()(
       name: "cafe-cart",
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      // Lines plus the last-order snapshot persist; drawerOpen always starts closed.
-      partialize: (state) => ({ lines: state.lines, lastOrder: state.lastOrder }),
+      // Lines, the last-order snapshot and the receipt persist; drawerOpen always starts closed.
+      partialize: (state) => ({
+        lines: state.lines,
+        lastOrder: state.lastOrder,
+        receipt: state.receipt,
+      }),
     },
   ),
 );

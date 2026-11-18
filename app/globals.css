@@ -100,3 +100,27 @@ html {
     overflow-x: auto;
   }
 }
+
+/* Print: receipts only. The .receipt element on /receipt/[orderNumber] is
+   the printable area; everything else (chrome, grain, buttons) is hidden. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  body::after {
+    display: none;
+  }
+
+  .receipt,
+  .receipt * {
+    visibility: visible;
+  }
+
+  .receipt {
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 100%;
+    border: none;
+  }
+}

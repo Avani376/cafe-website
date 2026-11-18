@@ -73,6 +73,13 @@ function nextOrderNumber(db: CafeDatabase): string {
   return `K-${String((row.maxSeq ?? 0) + 1).padStart(4, "0")}`;
 }
 
+/** Look up one order by its short readable number (receipts, order lookup). */
+export function getOrderByNumber(db: CafeDatabase, orderNumber: string): OrderRow | undefined {
+  return mapOrder(
+    db.$client.prepare("SELECT * FROM orders WHERE order_number = ?").get(orderNumber),
+  );
+}
+
 export async function createOrder(
   db: CafeDatabase,
   menu: { items: MenuItem[] },
