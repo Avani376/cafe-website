@@ -10,6 +10,7 @@ import { computeCart, formatINR } from "@/lib/pricing";
 import type { MenuItem } from "@/lib/content";
 import { DietMark } from "./DietMark";
 import { useDialogBehavior } from "./dialog-behavior";
+import { FLY_EVENT } from "./FlyToCart";
 
 interface ItemDetailSheetProps {
   item: MenuItem | null;
@@ -27,10 +28,24 @@ export function ItemDetailSheet({ item, hasImage, onClose }: ItemDetailSheetProp
   const add = useCart((s) => s.add);
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
   const [optionIds, setOptionIds] = useState<string[]>([]);
   const [qty, setQtyState] = useState(1);
 
   useDialogBehavior(panelRef, item !== null, onClose);
+
+  function flyImage() {
+    if (!item || !hasImage || !imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    window.dispatchEvent(
+      new CustomEvent(FLY_EVENT, {
+        detail: {
+          src: item.image,
+          from: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+        },
+      }),
+    );
+  }
 
   const displayTotal = item
     ? computeCart({ items: [item] }, [{ itemId: item.id, optionIds, qty }]).total
@@ -63,6 +78,7 @@ export function ItemDetailSheet({ item, hasImage, onClose }: ItemDetailSheetProp
             className="relative z-10 max-h-[88dvh] w-full overflow-y-auto rounded-t-2xl border border-muted/20 bg-surface md:max-w-lg md:rounded-card"
           >
             <motion.div
+              ref={imageRef}
               layoutId={reduce ? undefined : `item-image-${item.id}`}
               transition={springs.soft}
               className="relative aspect-16/9 overflow-hidden rounded-t-2xl bg-accent/5 md:rounded-t-card"
@@ -164,6 +180,7 @@ export function ItemDetailSheet({ item, hasImage, onClose }: ItemDetailSheetProp
                 <button
                   type="button"
                   onClick={() => {
+                    flyImage();
                     add(item.id, optionIds, qty);
                     onClose();
                   }}

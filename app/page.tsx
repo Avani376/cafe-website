@@ -8,6 +8,7 @@ import { Visit, Footer } from "@/components/Visit";
 import { CartDrawer } from "@/components/CartDrawer";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { GalleryStrip } from "@/components/GalleryStrip";
+import { FlyToCart } from "@/components/FlyToCart";
 import { Reveal } from "@/components/Reveal";
 
 /*
@@ -59,6 +60,7 @@ export default function Home() {
       </main>
       <Footer site={site} />
       <CartDrawer menu={menu} site={site} copy={copy} paymentMode={paymentMode} />
+      <FlyToCart />
     </>
   );
 }

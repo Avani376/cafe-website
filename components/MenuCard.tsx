@@ -9,6 +9,7 @@ import { cardHover, imageHover, springs, tiltMax } from "@/lib/motion";
 import { formatINR } from "@/lib/pricing";
 import type { MenuItem } from "@/lib/content";
 import { DietMark } from "./DietMark";
+import { FLY_EVENT, type FlyEventDetail } from "./FlyToCart";
 
 interface MenuCardProps {
   item: MenuItem;
@@ -42,6 +43,22 @@ export function MenuCard({ item, hasImage, featured = false, onOpen }: MenuCardP
   const tiltX = useSpring(rotateX, springs.soft);
   const tiltY = useSpring(rotateY, springs.soft);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+
+  // Fly-to-cart (PRD Section 7): dispatch the image flight for items with
+  // photos; FlyToCart skips it under reduced motion.
+  function flyImage() {
+    if (!hasImage || !imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    window.dispatchEvent(
+      new CustomEvent<FlyEventDetail>(FLY_EVENT, {
+        detail: {
+          src: item.image,
+          from: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+        },
+      }),
+    );
+  }
 
   // Pointer capability is checked at event time - no state, no effect.
   function isFinePointer(): boolean {
@@ -94,7 +111,7 @@ export function MenuCard({ item, hasImage, featured = false, onOpen }: MenuCardP
           className="text-left"
           aria-label={soldOut ? `${item.name} is sold out` : `View details for ${item.name}`}
         >
-          <div className="overflow-hidden rounded-t-card border-b border-muted/10">
+          <div ref={imageRef} className="overflow-hidden rounded-t-card border-b border-muted/10">
             <motion.div
               variants={imageVariants}
               transition={springs.soft}
@@ -153,7 +170,10 @@ export function MenuCard({ item, hasImage, featured = false, onOpen }: MenuCardP
                 {defaultQty === 0 ? (
                   <button
                     type="button"
-                    onClick={() => add(item.id)}
+                    onClick={() => {
+                      flyImage();
+                      add(item.id);
+                    }}
                     className="rounded-card bg-accent px-4 py-1.5 text-xs text-surface transition-opacity hover:opacity-90"
                   >
                     Add
