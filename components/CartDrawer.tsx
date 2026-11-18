@@ -50,6 +50,9 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
   const setQty = useCart((s) => s.setQty);
   const clear = useCart((s) => s.clear);
   const add = useCart((s) => s.add);
+  const lastOrder = useCart((s) => s.lastOrder);
+  const reorderLastOrder = useCart((s) => s.reorderLastOrder);
+  const saveLastOrder = useCart((s) => s.saveLastOrder);
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -185,6 +188,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           payMethod: "pay_at_counter",
           items: data.items,
         });
+        saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
         clear();
         setPhase("success");
         return;
@@ -240,6 +244,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
               payMethod: "online",
               items: data.items,
             });
+            saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
             clear();
             setPhase("success");
           } else {
@@ -289,6 +294,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           payMethod: "online",
           items: sandboxOrder.items,
         });
+        saveLastOrder(lines.map(({ itemId, optionIds, qty }) => ({ itemId, optionIds, qty })));
         clear();
         setPhase("success");
       } else {
@@ -447,9 +453,20 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
               <>
                 <div className="flex-1 overflow-y-auto px-5 py-4">
                   {lines.length === 0 ? (
-                    <p className="py-12 text-center text-muted">
-                      {copy["cart.emptyLine"] ?? "Your cart is empty."}
-                    </p>
+                    <div className="py-12 text-center">
+                      <p className="text-muted">
+                        {copy["cart.emptyLine"] ?? "Your cart is empty."}
+                      </p>
+                      {lastOrder && lastOrder.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => reorderLastOrder()}
+                          className="mt-4 rounded-card border border-muted/40 bg-surface px-5 py-2.5 text-sm text-foreground transition-colors hover:border-foreground"
+                        >
+                          Reorder last order
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <>
                       <ul className="flex flex-col divide-y divide-muted/10">

@@ -2,6 +2,7 @@ import { MapPin, Phone } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { HoursTable } from "./HoursTable";
 import { LinksPanel } from "./LinksPanel";
+import { ShareButton } from "./ShareButton";
 import type { Site } from "@/lib/content";
 
 /*
@@ -36,6 +37,9 @@ export function Visit({ site }: { site: Site }) {
           >
             Open in Google Maps
           </a>
+          <div className="mt-3">
+            <ShareButton cafeName={site.name} />
+          </div>
         </Reveal>
 
         <Reveal delay={0.04} className="md:col-span-4">

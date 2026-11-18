@@ -24,11 +24,15 @@ export function lineKey(line: Pick<CartLine, "itemId" | "optionIds">): string {
 
 interface CartState {
   lines: CartLine[];
+  /** Snapshot of the most recently placed order, for one-tap reorder (PRD Section 8.5). */
+  lastOrder: CartLine[] | null;
   drawerOpen: boolean;
   add: (itemId: string, optionIds?: string[], qty?: number) => void;
   setQty: (key: string, qty: number) => void;
   removeLine: (key: string) => void;
   clear: () => void;
+  saveLastOrder: (lines: CartLine[]) => void;
+  reorderLastOrder: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
 }
@@ -37,6 +41,7 @@ export const useCart = create<CartState>()(
   persist(
     (set) => ({
       lines: [],
+      lastOrder: null,
       drawerOpen: false,
       add: (itemId, optionIds = [], qty = 1) =>
         set((state) => {
@@ -61,15 +66,20 @@ export const useCart = create<CartState>()(
       removeLine: (key) =>
         set((state) => ({ lines: state.lines.filter((l) => lineKey(l) !== key) })),
       clear: () => set({ lines: [] }),
+      saveLastOrder: (lines) => set({ lastOrder: lines }),
+      reorderLastOrder: () =>
+        set((state) => {
+          if (!state.lastOrder || state.lastOrder.length === 0) return {};
+          return { lines: [...state.lastOrder], drawerOpen: true };
+        }),
       openDrawer: () => set({ drawerOpen: true }),
       closeDrawer: () => set({ drawerOpen: false }),
     }),
-    {
       name: "cafe-cart",
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      // Only the lines persist; drawerOpen always starts closed on reload.
-      partialize: (state) => ({ lines: state.lines }),
+      // Lines plus the last-order snapshot persist; drawerOpen always starts closed.
+      partialize: (state) => ({ lines: state.lines, lastOrder: state.lastOrder }),
     },
   ),
 );
