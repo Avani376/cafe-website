@@ -22,8 +22,6 @@
       { "type": "whatsapp", "label": "WhatsApp", "url": "#" },
       { "type": "facebook", "label": "Facebook", "url": "#" }
     ],
-    "owner": [
-      { "type": "instagram", "label": "Instagram", "url": "#" }
-    ]
+    "owner": [{ "type": "instagram", "label": "Instagram", "url": "#" }]
   }
 }
