@@ -23,12 +23,22 @@ export function lineKey(line: Pick<CartLine, "itemId" | "optionIds">): string {
   return `${line.itemId}|${[...line.optionIds].sort().join(",")}`;
 }
 
+export interface HistoryEntry {
+  orderNumber: string;
+  items: { itemId: string; name: string; qty: number; lineTotal: number }[];
+  total: number;
+  status: string;
+  createdAt: number;
+}
+
 interface CartState {
   lines: CartLine[];
   /** Snapshot of the most recently placed order, for one-tap reorder (PRD Section 8.5). */
   lastOrder: CartLine[] | null;
   /** Receipt snapshot of the most recent order, so /receipt/[orderNumber] can render even if the server DB is ephemeral. */
   receipt: ReceiptData | null;
+  /** Recent orders placed from this device, newest first (max 10). */
+  history: HistoryEntry[];
   drawerOpen: boolean;
   add: (itemId: string, optionIds?: string[], qty?: number) => void;
   setQty: (key: string, qty: number) => void;
@@ -36,6 +46,7 @@ interface CartState {
   clear: () => void;
   saveLastOrder: (lines: CartLine[]) => void;
   saveReceipt: (receipt: ReceiptData) => void;
+  addHistory: (entry: HistoryEntry) => void;
   reorderLastOrder: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -47,6 +58,7 @@ export const useCart = create<CartState>()(
       lines: [],
       lastOrder: null,
       receipt: null,
+      history: [],
       drawerOpen: false,
       add: (itemId, optionIds = [], qty = 1) =>
         set((state) => {
@@ -73,6 +85,13 @@ export const useCart = create<CartState>()(
       clear: () => set({ lines: [] }),
       saveLastOrder: (lines) => set({ lastOrder: lines }),
       saveReceipt: (receipt) => set({ receipt }),
+      addHistory: (entry) =>
+        set((state) => ({
+          history: [
+            entry,
+            ...state.history.filter((h) => h.orderNumber !== entry.orderNumber),
+          ].slice(0, 10),
+        })),
       reorderLastOrder: () =>
         set((state) => {
           if (!state.lastOrder || state.lastOrder.length === 0) return {};
@@ -90,6 +109,7 @@ export const useCart = create<CartState>()(
         lines: state.lines,
         lastOrder: state.lastOrder,
         receipt: state.receipt,
+        history: state.history,
       }),
     },
   ),

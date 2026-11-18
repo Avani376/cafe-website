@@ -27,7 +27,7 @@ interface SuccessOrder {
   payMethod: "online" | "pay_at_counter";
   orderType: string;
   tableNumber: string | null;
-  items: { name: string; qty: number; lineTotal: number }[];
+  items: { itemId: string; name: string; qty: number; lineTotal: number }[];
 }
 
 /** Display-only line total, safe even if the item became unavailable. */
@@ -57,6 +57,59 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
   const reorderLastOrder = useCart((s) => s.reorderLastOrder);
   const saveLastOrder = useCart((s) => s.saveLastOrder);
   const saveReceipt = useCart((s) => s.saveReceipt);
+  const addHistory = useCart((s) => s.addHistory);
+  const history = useCart((s) => s.history);
+  const [lookupNumber, setLookupNumber] = useState("");
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+  const [lookupFound, setLookupFound] = useState<{
+    orderNumber: string;
+    items: {
+      itemId: string;
+      name: string;
+      qty: number;
+      lineTotal: number;
+      options: { id: string }[];
+    }[];
+    total: number;
+    paymentLabel: string;
+  } | null>(null);
+
+  async function runLookup() {
+    const num = lookupNumber.trim().toUpperCase();
+    if (num === "" || lookupLoading) return;
+    setLookupLoading(true);
+    setLookupError(null);
+    setLookupFound(null);
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(num)}`);
+      if (!res.ok) {
+        setLookupError(
+          res.status === 404
+            ? "No order found with that number on this deployment."
+            : "The lookup did not work - try again in a moment.",
+        );
+        return;
+      }
+      const data = (await res.json()) as {
+        orderNumber: string;
+        items: {
+          itemId: string;
+          name: string;
+          qty: number;
+          lineTotal: number;
+          options: { id: string }[];
+        }[];
+        total: number;
+        paymentLabel: string;
+      };
+      setLookupFound(data);
+    } catch {
+      setLookupError("The lookup did not work - try again in a moment.");
+    } finally {
+      setLookupLoading(false);
+    }
+  }
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,7 +121,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
     amount: number;
     orderNumber: string;
     pickupSlot: string | null;
-    items: { name: string; qty: number; lineTotal: number }[];
+    items: { itemId: string; name: string; qty: number; lineTotal: number }[];
   } | null>(null);
   const [orderType, setOrderType] = useState<"pickup" | "dine_in">("pickup");
   const [tableNumber, setTableNumber] = useState("");
@@ -179,7 +232,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
         currency: string;
         payMethod: "online" | "pay_at_counter";
         pickupSlot: string | null;
-        items: { name: string; qty: number; lineTotal: number }[];
+        items: { itemId: string; name: string; qty: number; lineTotal: number }[];
         razorpayOrderId: string | null;
         publicKeyId: string | null;
       };
@@ -205,6 +258,13 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           total: data.amount,
           createdAt: Date.now(),
           paymentLabel: "Pay at counter",
+        });
+        addHistory({
+          orderNumber: data.orderNumber,
+          items: data.items,
+          total: data.amount,
+          status: "pay_at_counter",
+          createdAt: Date.now(),
         });
         clear();
         setPhase("success");
@@ -275,6 +335,13 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
               createdAt: Date.now(),
               paymentLabel: "Paid online",
             });
+            addHistory({
+              orderNumber: data.orderNumber,
+              items: data.items,
+              total: data.amount,
+              status: "paid",
+              createdAt: Date.now(),
+            });
             clear();
             setPhase("success");
           } else {
@@ -337,6 +404,13 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
           total: sandboxOrder.amount,
           createdAt: Date.now(),
           paymentLabel: "Paid online (sandbox)",
+        });
+        addHistory({
+          orderNumber: sandboxOrder.orderNumber,
+          items: sandboxOrder.items,
+          total: sandboxOrder.amount,
+          status: "paid",
+          createdAt: Date.now(),
         });
         clear();
         setPhase("success");
@@ -496,7 +570,7 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
               <>
                 <div className="flex-1 overflow-y-auto px-5 py-4">
                   {lines.length === 0 ? (
-                    <div className="py-12 text-center">
+                    <div className="py-8 text-center">
                       <p className="text-muted">
                         {copy["cart.emptyLine"] ?? "Your cart is empty."}
                       </p>
@@ -509,6 +583,118 @@ export function CartDrawer({ menu, site, copy, paymentMode }: CartDrawerProps) {
                           Reorder last order
                         </button>
                       )}
+
+                      {/* Find a previous order by its number (owner request). */}
+                      <div className="mt-8 border-t border-dashed border-muted/40 pt-6">
+                        <p className="text-sm text-foreground">Find a previous order</p>
+                        <div className="mt-2 flex gap-2">
+                          <input
+                            type="text"
+                            value={lookupNumber}
+                            onChange={(e) => setLookupNumber(e.target.value.toUpperCase())}
+                            placeholder="K-0001"
+                            aria-label="Order number"
+                            className="min-w-0 flex-1 rounded-card border border-muted/30 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-accent"
+                          />
+                          <button
+                            type="button"
+                            disabled={lookupLoading || lookupNumber.trim() === ""}
+                            onClick={() => void runLookup()}
+                            className="rounded-card border border-muted/40 px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground disabled:opacity-40"
+                          >
+                            {lookupLoading ? "..." : "Find"}
+                          </button>
+                        </div>
+                        <div aria-live="polite" className="mt-3 text-sm">
+                          {lookupError && <p className="text-danger">{lookupError}</p>}
+                          {lookupFound && (
+                            <div className="rounded-card border border-muted/30 p-4 text-left">
+                              <p className="font-display text-lg text-foreground">
+                                {lookupFound.orderNumber}
+                              </p>
+                              <p className="mt-1 text-xs text-muted">
+                                {lookupFound.paymentLabel} · {formatINR(lookupFound.total)}
+                              </p>
+                              <ul className="mt-2 flex flex-col divide-y divide-muted/10 text-sm">
+                                {lookupFound.items.map((item) => (
+                                  <li key={item.name} className="flex justify-between py-1">
+                                    <span className="text-foreground">
+                                      {item.name} × {item.qty}
+                                    </span>
+                                    <span className="text-muted">{formatINR(item.lineTotal)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              <div className="mt-3 flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    for (const item of lookupFound.items) {
+                                      const itemRow = menu.items.find((i) => i.id === item.itemId);
+                                      if (!itemRow || !itemRow.available) continue;
+                                      add(
+                                        item.itemId,
+                                        item.options.map((o) => o.id),
+                                        item.qty,
+                                      );
+                                    }
+                                    closeDrawer();
+                                  }}
+                                  className="flex-1 rounded-card bg-accent px-3 py-2 text-xs text-surface"
+                                >
+                                  Reorder
+                                </button>
+                                <Link
+                                  href={`/receipt/${lookupFound.orderNumber}`}
+                                  target="_blank"
+                                  className="flex-1 rounded-card border border-muted/40 bg-surface px-3 py-2 text-center text-xs text-foreground hover:border-foreground"
+                                >
+                                  Receipt
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Orders placed from this device (local history). */}
+                        {history.length > 0 && (
+                          <div className="mt-6 text-left">
+                            <p className="text-xs uppercase tracking-wide text-muted">
+                              Your recent orders
+                            </p>
+                            <ul className="mt-2 flex flex-col gap-2">
+                              {history.map((entry) => (
+                                <li
+                                  key={entry.orderNumber}
+                                  className="flex items-center justify-between rounded-card border border-muted/30 px-3 py-2 text-sm"
+                                >
+                                  <span className="text-foreground">
+                                    {entry.orderNumber}
+                                    <span className="ml-2 text-xs text-muted">
+                                      {formatINR(entry.total)}
+                                    </span>
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      for (const item of entry.items) {
+                                        const itemRow = menu.items.find(
+                                          (i) => i.id === item.itemId,
+                                        );
+                                        if (!itemRow || !itemRow.available) continue;
+                                        add(item.itemId, [], item.qty);
+                                      }
+                                    }}
+                                    className="rounded-card border border-muted/40 px-3 py-1 text-xs text-foreground hover:border-foreground"
+                                  >
+                                    Reorder
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <>

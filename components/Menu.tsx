@@ -38,8 +38,21 @@ export function MenuSection({ menu, images }: { menu: Menu; images: Record<strin
     );
   }, [menu, category, diet, query]);
 
+  // Searching: results grouped by category with headings (owner request).
+  const searching = query.trim() !== "";
+  const groups = useMemo(() => {
+    if (!searching) return [];
+    return menu.categories
+      .map((cat) => ({
+        cat,
+        label: cat[0].toUpperCase() + cat.slice(1),
+        items: filtered.filter((item) => item.category === cat),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [menu, filtered, searching]);
+
   const featuredId =
-    category === "all" && diet === "all" && query.trim() === ""
+    !searching && category === "all" && diet === "all"
       ? (menu.items.find((i) => i.tags.includes("bestseller"))?.id ?? menu.items[0]?.id)
       : null;
 
@@ -109,19 +122,43 @@ export function MenuSection({ menu, images }: { menu: Menu; images: Record<strin
           </div>
         </div>
 
-        <motion.div layout className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {filtered.map((item) => (
-              <MenuCard
-                key={item.id}
-                item={item}
-                hasImage={images[item.id] ?? false}
-                featured={item.id === featuredId}
-                onOpen={setOpenItem}
-              />
+        {/* When searching, results are grouped by category so the menu stays
+            scannable (owner request). Otherwise the flat asymmetric grid. */}
+        {searching ? (
+          <div className="mt-8 flex flex-col gap-10">
+            {groups.map((group) => (
+              <div key={group.cat}>
+                <h3 className="font-display text-2xl text-foreground">{group.label}</h3>
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {group.items.map((item) => (
+                      <MenuCard
+                        key={item.id}
+                        item={item}
+                        hasImage={images[item.id] ?? false}
+                        onOpen={setOpenItem}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
             ))}
-          </AnimatePresence>
-        </motion.div>
+          </div>
+        ) : (
+          <motion.div layout className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {filtered.map((item) => (
+                <MenuCard
+                  key={item.id}
+                  item={item}
+                  hasImage={images[item.id] ?? false}
+                  featured={item.id === featuredId}
+                  onOpen={setOpenItem}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         {filtered.length === 0 && (
           <p className="mt-12 text-muted">Nothing matches that search. Try another word.</p>
