@@ -128,6 +128,44 @@
       "tags": [],
       "available": false,
       "options": []
+    },
+    {
+      "id": "green-tea",
+      "name": "Green Tea",
+      "category": "coffee",
+      "description": "Whole-leaf green tea, steeped three minutes.",
+      "price": 80,
+      "image": "/menu/green-tea.jpg",
+      "diet": ["veg"],
+      "tags": [],
+      "available": true,
+      "options": [{ "id": "honey", "label": "Honey", "price": 15 }]
+    },
+    {
+      "id": "club-sandwich",
+      "name": "Club Sandwich",
+      "category": "food",
+      "description": "Toasted baguette, cured meats, cheese, lettuce and tomato.",
+      "price": 190,
+      "image": "/menu/club-sandwich.jpg",
+      "diet": ["non-veg"],
+      "tags": [],
+      "available": true,
+      "pairsWith": ["cold-brew"],
+      "options": []
+    },
+    {
+      "id": "chocolate-brownie",
+      "name": "Chocolate Brownie",
+      "category": "bakery",
+      "description": "Dense dark-chocolate squares, warmed on request.",
+      "price": 130,
+      "image": "/menu/chocolate-brownie.jpg",
+      "diet": ["veg"],
+      "tags": ["new"],
+      "available": true,
+      "pairsWith": ["cappuccino"],
+      "options": [{ "id": "vanilla-scoop", "label": "Vanilla ice cream scoop", "price": 50 }]
     }
   ]
 }

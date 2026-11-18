@@ -52,14 +52,14 @@ npm run dev                  # http://localhost:3000
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `PAYMENT_MOCK` | for sandbox | `true` enables the sandbox payment provider (no real money) |
-| `PAYMENT_MOCK_SECRET` | sandbox only | HMAC secret for sandbox captures (any dev string) |
-| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | for real payments | Razorpay API keys (test keys first) |
-| `RAZORPAY_WEBHOOK_SECRET` | for real payments | Webhook signature secret |
-| `RESEND_API_KEY` / `NOTIFY_EMAIL` / `FROM_EMAIL` | optional | Order notifications (no-op when unset) |
-| `DATABASE_URL` | optional | Restricted allowlist; Supabase Postgres comes via a driver swap, not this var |
+| Variable                                         | Required          | Purpose                                                                       |
+| ------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------- |
+| `PAYMENT_MOCK`                                   | for sandbox       | `true` enables the sandbox payment provider (no real money)                   |
+| `PAYMENT_MOCK_SECRET`                            | sandbox only      | HMAC secret for sandbox captures (any dev string)                             |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`        | for real payments | Razorpay API keys (test keys first)                                           |
+| `RAZORPAY_WEBHOOK_SECRET`                        | for real payments | Webhook signature secret                                                      |
+| `RESEND_API_KEY` / `NOTIFY_EMAIL` / `FROM_EMAIL` | optional          | Order notifications (no-op when unset)                                        |
+| `DATABASE_URL`                                   | optional          | Restricted allowlist; Supabase Postgres comes via a driver swap, not this var |
 
 Copy `.env.example` to `.env.local` locally, and set the same variables in
 Vercel Project Settings for deployments. Real Razorpay keys take over from
@@ -67,15 +67,15 @@ the sandbox automatically - see [docs/payments.md](docs/payments.md).
 
 ## Scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Dev server (creates db/ first) |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | ESLint |
-| `npm run type-check` | `tsc --noEmit` |
-| `npm run test` | Vitest (pricing, signatures, idempotency, sandbox) |
-| `npm run format` | Prettier write |
+| Script               | What it does                                       |
+| -------------------- | -------------------------------------------------- |
+| `npm run dev`        | Dev server (creates db/ first)                     |
+| `npm run build`      | Production build                                   |
+| `npm run start`      | Serve the production build                         |
+| `npm run lint`       | ESLint                                             |
+| `npm run type-check` | `tsc --noEmit`                                     |
+| `npm run test`       | Vitest (pricing, signatures, idempotency, sandbox) |
+| `npm run format`     | Prettier write                                     |
 
 ## Deployment (Vercel)
 
