@@ -68,6 +68,25 @@ Real Razorpay keys take over automatically when set (env-based selection in
 `getPaymentProvider`). The sandbox secret lives in `PAYMENT_MOCK_SECRET`
 (any dev string; not a credential).
 
+## Security tests
+
+`tests/razorpay-security.test.ts` treats the pipeline like an attacker would:
+
+- Signature hardening — uppercase copies, whitespace/newline injection,
+  unicode and 100k-char signatures, empty ids: all rejected, none throw
+- Provider isolation — real-Razorpay signatures never validate on the
+  sandbox provider and vice versa (secrets never cross the boundary)
+- Webhook adversarial payloads — `payment.failed` never marks paid,
+  string-typed amounts are rejected as mismatches, prototype-pollution keys
+  in the payload have no effect
+- Boundary hygiene — SQL-injection order lookups (parameterized queries
+  hold), the verify route returns 400 before touching the database on
+  hostile bodies, mock-capture returns 403 outside sandbox mode, a source
+  scan asserts server-only secrets are never referenced in client
+  components, and the rate limiter blocks past its limit and recovers
+
+Run the whole suite with `npm test`.
+
 ## Going live checklist
 
 1. Razorpay dashboard -> create/live-switch account; complete KYC.
