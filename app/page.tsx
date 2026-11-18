@@ -1,5 +1,6 @@
 import { getCopy, getMenu, getSite, menuImageExists } from "@/lib/content";
 import { getPaymentProvider } from "@/lib/payments/razorpay";
+import { SITE_URL } from "@/lib/site";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { MenuSection } from "@/components/Menu";
@@ -10,6 +11,74 @@ import { FeedbackForm } from "@/components/FeedbackForm";
 import { GalleryStrip } from "@/components/GalleryStrip";
 import { FlyToCart } from "@/components/FlyToCart";
 import { Reveal } from "@/components/Reveal";
+
+const DAY_NAMES: Record<string, string> = {
+  mon: "Monday",
+  tue: "Tuesday",
+  wed: "Wednesday",
+  thu: "Thursday",
+  fri: "Friday",
+  sat: "Saturday",
+  sun: "Sunday",
+};
+
+/*
+ * Structured data (PRD Section 10): CafeOrCoffeeShop with opening hours and
+ * the full menu, so search engines get prices, availability and hours
+ * straight from /content. Built server-side from the same content files the
+ * UI reads - no duplication.
+ */
+function buildStructuredData(site: ReturnType<typeof getSite>, menu: ReturnType<typeof getMenu>) {
+  const openingHoursSpecification = Object.entries(site.hours).flatMap(([day, windows]) =>
+    windows.map(([opens, closes]) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: DAY_NAMES[day] ?? day,
+      opens,
+      closes,
+    })),
+  );
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    name: site.name,
+    description: site.tagline,
+    url: SITE_URL,
+    telephone: site.phone,
+    image: `${SITE_URL}/gallery/hero.jpg`,
+    servesCuisine: ["Coffee", "Bakery"],
+    priceRange: "₹₹",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: site.address,
+      addressCountry: "IN",
+    },
+    openingHoursSpecification,
+    hasMenu: {
+      "@type": "Menu",
+      name: `${site.name} menu`,
+      hasMenuSection: menu.categories.map((category) => ({
+        "@type": "MenuSection",
+        name: category[0].toUpperCase() + category.slice(1),
+        hasMenuItem: menu.items
+          .filter((item) => item.category === category)
+          .map((item) => ({
+            "@type": "MenuItem",
+            name: item.name,
+            description: item.description,
+            offers: {
+              "@type": "Offer",
+              price: item.price,
+              priceCurrency: "INR",
+              availability: item.available
+                ? "https://schema.org/InStock"
+                : "https://schema.org/SoldOut",
+            },
+          })),
+      })),
+    },
+  };
+}
 
 /*
  * Single-page composition (PRD Section 3): hero, menu, about + links,
@@ -28,8 +97,14 @@ export default function Home() {
   const images: Record<string, boolean> = {};
   for (const item of menu.items) images[item.id] = menuImageExists(item);
 
+  const structuredData = buildStructuredData(site, menu);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <Header site={site} />
       <main>
         <Hero

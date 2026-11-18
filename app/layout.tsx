@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Work_Sans } from "next/font/google";
 import { getSite } from "@/lib/content";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 /*
@@ -28,9 +29,28 @@ const body = Work_Sans({
 // (PRD Section 14). Placeholder text here is not the final brand voice.
 export function generateMetadata(): Metadata {
   const site = getSite();
+  const title = `${site.name} - ${site.tagline}`;
+  const description =
+    "Speciality coffee, fresh bakes and pickup orders. Menu, hours and directions.";
   return {
-    title: `${site.name} - ${site.tagline}`,
-    description: "Cafe menu, online orders and pickup. Built phase by phase.",
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: SITE_URL,
+      siteName: site.name,
+      images: [{ url: "/gallery/hero.jpg", width: 1600, height: 1200 }],
+      locale: "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/gallery/hero.jpg"],
+    },
   };
 }
 
