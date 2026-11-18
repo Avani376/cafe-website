@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Star } from "lucide-react";
+import { Check } from "lucide-react";
 import { feedbackRequestSchema } from "@/lib/feedback-schema";
 
 /*
@@ -66,6 +66,8 @@ export function FeedbackForm() {
   }
 
   const ratingLabels = ["Not great", "Could be better", "Good", "Great", "Loved it"];
+  // Emoji rating scale - requested by the owner for the feedback form.
+  const ratingEmojis = ["😞", "😐", "🙂", "😄", "🤩"];
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 flex max-w-xl flex-col gap-5" noValidate>
@@ -84,24 +86,29 @@ export function FeedbackForm() {
 
       <fieldset>
         <legend className="text-sm text-foreground">Your rating</legend>
-        <div className="mt-2 flex gap-1">
+        <div className="mt-2 flex gap-2">
           {[1, 2, 3, 4, 5].map((value) => (
             <button
               key={value}
               type="button"
               onClick={() => setRating(value)}
-              aria-label={`${value} star${value === 1 ? "" : "s"} - ${ratingLabels[value - 1]}`}
+              aria-label={`${value} out of 5 - ${ratingLabels[value - 1]}`}
               aria-pressed={rating === value}
-              className="flex h-11 w-11 items-center justify-center rounded-card transition-colors hover:bg-surface"
+              className={`flex h-12 w-12 items-center justify-center rounded-card border text-2xl transition-all ${
+                rating === value
+                  ? "scale-110 border-accent bg-surface"
+                  : "border-transparent opacity-60 hover:opacity-100"
+              }`}
             >
-              <Star
-                className={`h-6 w-6 ${rating >= value ? "fill-accent text-accent" : "text-muted"}`}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
+              {ratingEmojis[value - 1]}
             </button>
           ))}
         </div>
+        {rating > 0 && (
+          <p className="mt-2 text-sm text-muted" aria-live="polite">
+            {ratingEmojis[rating - 1]} {ratingLabels[rating - 1]}
+          </p>
+        )}
       </fieldset>
 
       <div className="flex flex-col gap-4">
@@ -166,7 +173,7 @@ export function FeedbackForm() {
         {phase === "success" && (
           <p className="flex items-center gap-2 text-success">
             <Check className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-            Thank you - it means a lot. We read every note.
+            Thank you - it means a lot. We read every note. 🙏
           </p>
         )}
       </div>
